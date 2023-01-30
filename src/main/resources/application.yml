@@ -10,12 +10,15 @@ spring:
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: retros
-#redis配置 先使用默认的即可
-#  redis:
-#    host: locahost
-#    port: 6379
-#    database: 0
-#    password:
+  #redis配置 先使用默认的即可
+  redis:
+    host: 192.168.50.64
+    port: 6379
+    database: 0
+    password: Redis.hpp666
+  cache:
+    redis:
+      time-to-live: 1800000
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
