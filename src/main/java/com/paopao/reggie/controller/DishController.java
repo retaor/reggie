@@ -14,11 +14,12 @@ import com.paopao.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -119,6 +120,7 @@ public class DishController {
      * @return
      */
     @PutMapping
+    @CacheEvict(value = "dishList",key = "#dishDto.categoryId + '_1'")
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
 
@@ -128,8 +130,8 @@ public class DishController {
         Set keys = redisTemplate.keys("dish_*");
         redisTemplate.delete(keys);*/
         // 清理某个分类下面的菜品缓存数据
-        String key = "dish_" + dishDto.getCategoryId() + "_1";
-        redisTemplate.delete(key);
+        //String key = "dish_" + dishDto.getCategoryId() + "_1";
+        //redisTemplate.delete(key);
 
 
         return R.success("修改菜品成功");
@@ -142,17 +144,18 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(value = "dishList",key = "#dish.categoryId + '_' + #dish.status", unless = "#result == null")
     public R<List<DishDto>> list(Dish dish){
         List<DishDto> dishDtoList = null;
 
         //动态获取key的值 categoryId=1397844391040167938&status=1
-        String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
+        //String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
         //先从redis中获取缓存数据
-        dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
+        //dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
         //如果存在，直接返回，无需查询数据库操作
-        if (dishDtoList != null){
+        /*if (dishDtoList != null){
             return R.success(dishDtoList);
-        }
+        }*/
         //如果不存在，查询数据库，并放redis一份
 
         //构建查询条件
@@ -179,7 +182,7 @@ public class DishController {
         }).collect(Collectors.toList());
 
         //如果不存在，查询数据库并把查询结果存放到redis,设定超时60分钟自动删除
-        redisTemplate.opsForValue().set(key,dishDtoList,60, TimeUnit.MINUTES);
+        //redisTemplate.opsForValue().set(key,dishDtoList,60, TimeUnit.MINUTES);
 
         return R.success(dishDtoList);
     }
@@ -211,6 +214,7 @@ public class DishController {
      * @return
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> deleteSaleStatus(@RequestParam List<Long> ids){
         log.info("批量删除菜品id：{}", ids );
         dishService.batchDeleteByIds(ids);
