@@ -104,7 +104,7 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
-    @CacheEvict(value = "setmealCache",allEntries = true)
+//    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> delete(@RequestParam List<Long> ids){
         log.info("删除的套餐id:{}",ids);
         setmealService.removeWithDish(ids);
@@ -146,6 +146,7 @@ public class SetmealController {
     }
     //修改套餐信息
     @PutMapping
+    @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId + '_' + #setmealDto.status")
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info("修改的套餐信息：{}",setmealDto.toString());
 
@@ -162,6 +163,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{status}")
+    //todo 这个地方也要添加缓存功能，现在还不会，后期再添加
     public R<String> updateSaleStatus(@PathVariable("status") Integer status,@RequestParam List<Long> ids){
         log.info("修改售卖状态status：{},修改Id：{}",status,ids);
 

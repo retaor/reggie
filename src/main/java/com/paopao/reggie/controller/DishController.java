@@ -193,6 +193,7 @@ public class DishController {
      * @return
      */
     @PostMapping("/status/{status}")
+    //todo 这个地方也要添加缓存功能，现在还不会，后期再添加
     public R<String> updateSaleStatus(@PathVariable("status") Integer status,@RequestParam List<Long> ids){
         log.info("批量修改菜品状态为：{}, id：{}", status, ids );
 
@@ -200,6 +201,7 @@ public class DishController {
             throw new CustomException("菜品售卖状态异常");
         }
         if (dishService.batchUpdateByIds(status,ids)){
+
             return R.success("销售状态修改成功");
         } else {
             return R.error("销售状态修改失败");
@@ -214,7 +216,6 @@ public class DishController {
      * @return
      */
     @DeleteMapping
-    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> deleteSaleStatus(@RequestParam List<Long> ids){
         log.info("批量删除菜品id：{}", ids );
         dishService.batchDeleteByIds(ids);
