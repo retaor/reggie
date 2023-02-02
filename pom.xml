@@ -65,6 +65,16 @@
             <version>2.2.1</version>
         </dependency>
 
+        <!--教程为旧版本，注释掉尝试使用最新OpenAPI3和swagger3做生成接口文档
+            测试后不好上手，先用起来，以后熟练了再换
+        -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -98,6 +108,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.7.7</version>
                 <configuration>
                     <excludes>
                         <exclude>

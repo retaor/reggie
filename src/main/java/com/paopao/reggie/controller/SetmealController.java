@@ -11,6 +11,10 @@ import com.paopao.reggie.entity.Setmeal;
 import com.paopao.reggie.service.CategoryService;
 import com.paopao.reggie.service.SetmealDishService;
 import com.paopao.reggie.service.SetmealService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/setmeal")
 @RestController
+@Api(tags = "套餐相关接口")
 public class SetmealController {
 
     @Autowired
@@ -37,12 +42,13 @@ public class SetmealController {
 
 
     /**
-     * 添加套餐信息
+     * 新增套餐
      * @param setmealDto
      * @return
      */
     @PostMapping
     @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation(value = "新增套餐接口")
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info("套餐信息：{}",setmealDto);
 
@@ -59,6 +65,13 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "套餐分页查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name = "name",value = "套餐名称",required = false)
+
+    })
     public R<Page> page(int page,int pageSize,String name){
         //分页构造器
         Page<Setmeal> pageInfo = new Page(page, pageSize);
@@ -105,6 +118,7 @@ public class SetmealController {
      */
     @DeleteMapping
 //    @CacheEvict(value = "setmealCache",allEntries = true)
+    @ApiOperation(value = "套餐删除接口")
     public R<String> delete(@RequestParam List<Long> ids){
         log.info("删除的套餐id:{}",ids);
         setmealService.removeWithDish(ids);
@@ -117,6 +131,7 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/list")
+    @ApiOperation(value = "套餐查询接口")
     @Cacheable(value = "setmealCache",key = "#setmeal.categoryId + '_' + #setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
@@ -137,6 +152,7 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "根据Id查询套餐详情")
     public R<SetmealDto> get(@PathVariable Long id){
         log.info("要查询的套餐Id：{}",id);
         SetmealDto setmealDto = setmealService.getByIdSetmealDto(id);
@@ -146,6 +162,7 @@ public class SetmealController {
     }
     //修改套餐信息
     @PutMapping
+    @ApiOperation(value = "修改套餐信息")
     @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId + '_' + #setmealDto.status")
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info("修改的套餐信息：{}",setmealDto.toString());
@@ -163,6 +180,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{status}")
+    @ApiOperation(value = "修改售卖状态")
     //todo 这个地方也要添加缓存功能，现在还不会，后期再添加
     public R<String> updateSaleStatus(@PathVariable("status") Integer status,@RequestParam List<Long> ids){
         log.info("修改售卖状态status：{},修改Id：{}",status,ids);
